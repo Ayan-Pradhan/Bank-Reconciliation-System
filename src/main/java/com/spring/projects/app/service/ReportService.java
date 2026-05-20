@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.spring.projects.app.constant.DiscrepencyType;
 import com.spring.projects.app.constant.RefundStatus;
-import com.spring.projects.app.entity.Report;
+import com.spring.projects.app.dto.RefundDetails;
 import com.spring.projects.app.repository.ReportRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,11 +25,11 @@ public class ReportService {
 	}
 	
 	public void updateReportBatch(RefundStatus status) {
-		reportRepo.updateReportForInitiatedRefund(status);
+		reportRepo.updateReportForStatusInitiated(status);
 	}
 	
-	public void updateReportManual(Report report) {
-		reportRepo.updateReportForNoActionRefund(report);
+	public void updateReportManual(RefundDetails details) {
+		reportRepo.updateReportForStatusNoAction(details);
 	}
 	
 	

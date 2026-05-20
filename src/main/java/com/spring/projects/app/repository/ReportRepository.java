@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.spring.projects.app.constant.DiscrepencyType;
 import com.spring.projects.app.constant.RefundStatus;
-import com.spring.projects.app.entity.Report;
+import com.spring.projects.app.dto.RefundDetails;
 
 @Repository
 public class ReportRepository {
@@ -88,7 +88,7 @@ public class ReportRepository {
 		});
 	}
 	
-	public void updateReportForInitiatedRefund(RefundStatus status) {
+	public void updateReportForStatusInitiated(RefundStatus status) {
 		jdbcTemplate.update(connection->{
 			PreparedStatement ps = connection.prepareStatement(UPDATE_REPORT_INITIATED);
 			ps.setString(1, status.toString());
@@ -96,11 +96,11 @@ public class ReportRepository {
 		});
 	}
 	
-	public void updateReportForNoActionRefund(Report report) {
+	public void updateReportForStatusNoAction(RefundDetails details) {
 		jdbcTemplate.update(connection->{
 			PreparedStatement ps = connection.prepareStatement(UPDATE_REPORT_NO_ACTION);
-			ps.setString(1, report.getRefundStatus());
-			ps.setString(2, report.getTxnId());
+			ps.setString(1, details.refundStatus());
+			ps.setString(2, details.txnId());
 			return ps;
 		});
 	}

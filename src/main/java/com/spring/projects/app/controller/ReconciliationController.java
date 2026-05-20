@@ -1,16 +1,16 @@
 package com.spring.projects.app.controller;
 
-import org.springframework.batch.core.job.Job;
-import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
-import org.springframework.batch.core.job.parameters.JobParameters;
-import org.springframework.batch.core.job.parameters.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.launch.JobOperator;
-import org.springframework.batch.core.launch.JobRestartException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.spring.projects.app.dto.RefundDetails;
+import com.spring.projects.app.dto.Response;
+import com.spring.projects.app.service.ReconciliationBatchService;
+import com.spring.projects.app.service.RefundService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,24 +19,17 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/service")
 public class ReconciliationController {
 	
-	private final JobOperator operator;
-	private final Job reconciliationJob;
+	private final ReconciliationBatchService batchService;
+	private final RefundService refundService;
 	
 	@GetMapping("/start-service")
-	public String jobLauncher() {
-		final JobParameters jobParameters = new JobParametersBuilder()
-				.addLong("startAt", System.currentTimeMillis())
-				.toJobParameters();
-		
-		try {
-			
-			operator.start(reconciliationJob, jobParameters);
-			return "SUCCESS";
-			
-			
-		} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException | InvalidJobParametersException e) {
-			return "Job Failed with exception: "+ e.getMessage();
-		}
+	public ResponseEntity<Response> startService() {
+		return ResponseEntity.ok(batchService.startReconciliationService());
+	}
+	
+	@PostMapping("/initiate-refund")
+	public ResponseEntity<Response> initiateRefund(@RequestBody RefundDetails refundDetails) {
+		return ResponseEntity.ok(refundService.initiateManualRefund(refundDetails));
 	}
 
 	

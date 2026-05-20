@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.spring.projects.app.constant.RefundStatus;
-import com.spring.projects.app.entity.Refund;
+import com.spring.projects.app.dto.RefundDetails;
 
 @Repository
 public class RefundRepository {
@@ -30,18 +30,19 @@ public class RefundRepository {
 	
 	private static final String UPDATE_REFUND_AMOUNT_MISMATCH = """
 			UPDATE refund SET refund_status = ?, time_stamp = ?, is_processed = ?
-			WHERE is_processed = 'FALSE'
+			WHERE txn_id = ? AND is_processed = 'FALSE'
 			""";
 	
 	public long insert() {
 		return jdbcTemplate.update(INSERT_INTO_REFUND_STATUS_MISMATCH);
 	}
 	
-	public long update(Refund refundDetails) {
+	public long update(RefundDetails refundDetails) {
 		return jdbcTemplate.update(connection->{
 			PreparedStatement ps = connection.prepareStatement(UPDATE_REFUND_AMOUNT_MISMATCH);
-			ps.setString(1, refundDetails.getRefundStatus());
+			ps.setString(1, refundDetails.refundStatus());
 			ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+			ps.setString(3, refundDetails.txnId());
 			ps.setString(3, "TRUE");
 			return ps;
 		});

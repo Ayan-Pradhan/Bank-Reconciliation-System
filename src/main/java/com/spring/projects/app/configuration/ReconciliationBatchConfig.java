@@ -176,7 +176,7 @@ public class ReconciliationBatchConfig {
 	@Bean
 	Tasklet initiateRefundTasklet() {
 		return (contribution, chunkContext) -> {
-			refundService.initiateRefundBatch();
+			refundService.initiateBatchRefund();
 			return RepeatStatus.FINISHED;
 		};
 	}
