@@ -43,13 +43,13 @@ public class ReportRepository {
 			WHERE bank_payment_status <> user_payment_status AND is_processed = 'FALSE'
 			""";
 	
-	// updates refund status for INITIATED batch refunds
+	// updates refund status from INITIATED to SUCCESS (batch refund process)
 	private static final String UPDATE_REPORT_INITIATED = """
 			UPDATE report SET refund_status = ?
 			WHERE refund_status = 'INITIATED'
 			""";
 	
-	// updates refund status for NO_ACTION refunds
+	// updates refund status from NO_ACTION to SUCCESS (manual refund process)
 	private static final String UPDATE_REPORT_NO_ACTION = """
 			UPDATE report SET refund_status = ?
 			WHERE refund_status = 'NO_ACTION' AND txn_id = ?
@@ -88,16 +88,16 @@ public class ReportRepository {
 		});
 	}
 	
-	public void updateReportForStatusInitiated(RefundStatus status) {
-		jdbcTemplate.update(connection->{
+	public long updateReportForInitiatedStatus(RefundStatus status) {
+		return jdbcTemplate.update(connection->{
 			PreparedStatement ps = connection.prepareStatement(UPDATE_REPORT_INITIATED);
 			ps.setString(1, status.toString());
 			return ps;
 		});
 	}
 	
-	public void updateReportForStatusNoAction(RefundDetails details) {
-		jdbcTemplate.update(connection->{
+	public long updateReportForNoActionStatus(RefundDetails details) {
+		return jdbcTemplate.update(connection->{
 			PreparedStatement ps = connection.prepareStatement(UPDATE_REPORT_NO_ACTION);
 			ps.setString(1, details.refundStatus());
 			ps.setString(2, details.txnId());
