@@ -11,33 +11,30 @@ import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.JobRestartException;
 import org.springframework.stereotype.Service;
 
+import com.spring.projects.app.constant.ResponseStatusCode;
 import com.spring.projects.app.dto.Response;
+import com.spring.projects.app.exception.BatchJobUnsuccessfulException;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
 public class ReconciliationBatchService {
-	
+
 	private final JobOperator operator;
 	private final Job reconciliationJob;
-	
-	public Response startReconciliationService() {
-		final JobParameters jobParameters = new JobParametersBuilder()
-				.addLong("startAt", System.currentTimeMillis())
-				.toJobParameters();
+
+	public Response startReconciliationService() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException, BatchJobUnsuccessfulException {
+			final JobParameters jobParameters = new JobParametersBuilder()
+					.addLong("startAt", System.currentTimeMillis())
+					.toJobParameters();
 		
-		try {
-			
 			JobExecution job = operator.start(reconciliationJob, jobParameters);
 			if(job.getAllFailureExceptions().isEmpty())
-				return new Response("SUCCESS", job.getExitStatus());
-			return new Response("","");
-				
+				return new Response(ResponseStatusCode.SUCCESS, "Reconciliation job successful");
 			
-		} catch (JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException | InvalidJobParametersException e) {
-			return new Response("FAILED", "Job Failed with exception: "+ e.getMessage());
-		}
+			throw new BatchJobUnsuccessfulException("Reconciliation job failed");	
+			
 	}
 
 }
