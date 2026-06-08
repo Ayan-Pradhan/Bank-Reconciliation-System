@@ -1,6 +1,8 @@
 package com.spring.projects.app.dto;
 
+import com.spring.projects.app.constant.ResponseStatusCode;
+
 public record Response(
-		String message,
-		Object payload
+		ResponseStatusCode status,
+		String message
 		) {}
