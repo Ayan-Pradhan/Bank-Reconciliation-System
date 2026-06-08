@@ -23,12 +23,13 @@ import org.springframework.batch.infrastructure.item.file.transform.DelimitedLin
 import org.springframework.batch.infrastructure.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.spring.projects.app.entity.BankRecord;
 import com.spring.projects.app.entity.UserRecord;
+import com.spring.projects.app.exception.LedgerNotFoundException;
 import com.spring.projects.app.service.BankRecordService;
+import com.spring.projects.app.service.FileLoaderService;
 import com.spring.projects.app.service.RefundService;
 import com.spring.projects.app.service.ReportService;
 import com.spring.projects.app.service.StagingService;
@@ -43,12 +44,13 @@ public class ReconciliationBatchConfig {
 	private final BankRecordService bankRecordService;
 	private final ReportService reportService;
 	private final RefundService refundService;
+	private final FileLoaderService fileService;
 	
 	@Bean
-	FlatFileItemReader<BankRecord> bankRecordReader(){
+	FlatFileItemReader<BankRecord> bankRecordReader() throws LedgerNotFoundException{
 		return new FlatFileItemReaderBuilder<BankRecord>()
 				.name("bankRecordReader")
-				.resource(new ClassPathResource("ledgers/bank_records.csv"))
+				.resource(fileService.getBankLedger())
 				.linesToSkip(1)
 				.lineMapper(bankRecordLineMapper())
 				.build();
@@ -94,10 +96,10 @@ public class ReconciliationBatchConfig {
 	
 	
 	@Bean
-	FlatFileItemReader<UserRecord> userRecordReader() {
+	FlatFileItemReader<UserRecord> userRecordReader() throws LedgerNotFoundException  {
 		return new FlatFileItemReaderBuilder<UserRecord>()
 				.name("userRecordReader")
-				.resource(new ClassPathResource("ledgers/user_records.csv"))
+				.resource(fileService.getUserLedger())
 				.linesToSkip(1)
 				.lineMapper(userRecordLineMapper())
 				.build();
@@ -140,7 +142,7 @@ public class ReconciliationBatchConfig {
 	}
 	
 	@Bean
-	Step loadBankFileIntoStaging(JobRepository repository, PlatformTransactionManager transactionManager, DataSource dataSource) {
+	Step loadBankFileIntoStaging(JobRepository repository, PlatformTransactionManager transactionManager, DataSource dataSource) throws LedgerNotFoundException {
 		return new StepBuilder("load-bank-file-step",repository)
 				.<BankRecord, BankRecord>chunk(20)
 				.reader(bankRecordReader())
@@ -149,7 +151,7 @@ public class ReconciliationBatchConfig {
 	}
 	
 	@Bean
-	Step loadUserFileIntoStaging(JobRepository repository, PlatformTransactionManager transactionManager, DataSource dataSource) {
+	Step loadUserFileIntoStaging(JobRepository repository, PlatformTransactionManager transactionManager, DataSource dataSource) throws LedgerNotFoundException  {
 		return new StepBuilder("load-user-file-step",repository)
 				.<UserRecord, UserRecord>chunk(20)
 				.reader(userRecordReader())
