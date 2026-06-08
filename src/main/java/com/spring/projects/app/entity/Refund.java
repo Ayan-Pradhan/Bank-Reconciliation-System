@@ -26,6 +26,7 @@ public class Refund {
 	
 	private String txnId;
 	private Double amount;
+	private String cause;			// Reason for refund
 	private String refundStatus;
 	private LocalDateTime timeStamp;
 	

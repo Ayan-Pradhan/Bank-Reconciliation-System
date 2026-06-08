@@ -1,6 +1,5 @@
 package com.spring.projects.app.repository;
 
-import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -17,45 +16,50 @@ public class RefundRepository {
 	@Autowired
 	private JdbcTemplate jdbcTemplate; 
 	
-	private static final String INSERT_INTO_REFUND_STATUS_MISMATCH = """
-				INSERT INTO refund (txn_id, amount)
-				SELECT txn_id, bank_amount FROM report r
-				WHERE r.discrepency_type = 'STATUS_MISMATCH';
+	private static final String INSERT_REFUND_DETAILS = """
+			INSERT INTO refund (txn_id, amount, cause, refund_status)
+			SELECT r.txn_id, r.bank_amount, r.discrepency_type, r.refund_status FROM report r
 			""";
 	
-	private static final String UPDATE_REFUND_STATUS_MISMATCH = """
+	private static final String UPDATE_STATUS_MISMATCH = """
 			UPDATE refund SET refund_status = ?, time_stamp = ?, is_processed = ?
-			WHERE is_processed = 'FALSE'
+			WHERE is_processed = 'FALSE' AND cause = 'STATUS_MISMATCH'
 			""";
 	
-	private static final String UPDATE_REFUND_AMOUNT_MISMATCH = """
+	private static final String UPDATE_AMOUNT_MISMATCH = """
 			UPDATE refund SET refund_status = ?, time_stamp = ?, is_processed = ?
-			WHERE txn_id = ? AND is_processed = 'FALSE'
+			WHERE txn_id = ? AND is_processed = 'FALSE' AND cause = 'AMOUNT_MISMATCH'
 			""";
+	
+	/**
+	 * Methods to process the refund
+	 * insert() method is used to insert records into the refund table.
+	 * update() method is used to update amount mismatch records.
+	 * updateBatch() method is used to perform status mismatch records in the refund table.
+	 */
 	
 	public long insert() {
-		return jdbcTemplate.update(INSERT_INTO_REFUND_STATUS_MISMATCH);
+		return jdbcTemplate.update(INSERT_REFUND_DETAILS);
 	}
 	
+	
 	public long update(RefundDetails refundDetails) {
-		return jdbcTemplate.update(connection->{
-			PreparedStatement ps = connection.prepareStatement(UPDATE_REFUND_AMOUNT_MISMATCH);
-			ps.setString(1, refundDetails.refundStatus());
-			ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
-			ps.setString(3, refundDetails.txnId());
-			ps.setString(3, "TRUE");
-			return ps;
-		});
+		return jdbcTemplate.update(
+			UPDATE_AMOUNT_MISMATCH,
+			refundDetails.refundStatus(),
+			Timestamp.valueOf(LocalDateTime.now()),
+			"TRUE",
+			refundDetails.txnId()
+		);
 	}
 	
 	public long updateBatch(RefundStatus status) {
-		return jdbcTemplate.update(connection -> {
-			PreparedStatement ps = connection.prepareStatement(UPDATE_REFUND_STATUS_MISMATCH);
-			ps.setString(1, status.toString());
-			ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
-			ps.setString(3, "TRUE");
-			return ps;
-		});
+		return jdbcTemplate.update(
+			UPDATE_STATUS_MISMATCH,
+			status.toString(),
+			Timestamp.valueOf(LocalDateTime.now()),
+			"TRUE"
+		);
 	}
 
 }
