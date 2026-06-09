@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.spring.projects.app.constant.DiscrepencyType;
+import com.spring.projects.app.constant.ProcessedStatus;
 import com.spring.projects.app.constant.RefundStatus;
 import com.spring.projects.app.dto.RefundDetails;
 
@@ -66,7 +67,7 @@ public class ReportRepository {
 			ps.setString(2, type.toString());
 			ps.setString(3, status.toString());
 			ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-			ps.setString(5, "TRUE");
+			ps.setString(5, ProcessedStatus.TRUE.toString());
 			return ps;
 		});
 
@@ -83,7 +84,7 @@ public class ReportRepository {
 			ps.setString(2, type.toString());
 			ps.setString(3, status.toString());
 			ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-			ps.setString(5, "TRUE");
+			ps.setString(5, ProcessedStatus.TRUE.toString());
 			return ps;
 		});
 	}

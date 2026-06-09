@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.spring.projects.app.constant.ProcessedStatus;
 import com.spring.projects.app.constant.RefundStatus;
 import com.spring.projects.app.dto.RefundDetails;
 
@@ -47,9 +48,9 @@ public class RefundRepository {
 		return jdbcTemplate.update(
 			UPDATE_AMOUNT_MISMATCH,
 			refundDetails.amount(),
-			refundStatus,
+			refundStatus.toString(),
 			Timestamp.valueOf(LocalDateTime.now()),
-			"TRUE",
+			ProcessedStatus.TRUE.toString(),
 			refundDetails.txnId()
 		);
 	}
@@ -59,7 +60,7 @@ public class RefundRepository {
 			UPDATE_STATUS_MISMATCH,
 			status.toString(),
 			Timestamp.valueOf(LocalDateTime.now()),
-			"TRUE"
+			ProcessedStatus.TRUE.toString()
 		);
 	}
 
