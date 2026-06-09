@@ -16,12 +16,12 @@ public class BankRecordJobLoggingAspect {
 	
 	private Logger logger = LoggerFactory.getLogger(BankRecordJobLoggingAspect.class);
 	
-	@Before("com.spring.project.app.aspect.bankRecordServiceConfig()")
+	@Before("com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcutConfig.bankRecordServiceConfig()")
 	public void logBankRecordService(JoinPoint joinPoint) {
 		logger.info("Matched record writing process started");
 	}
 	
-	@Around("com.spring.project.app.aspect.bankRecordServiceConfig()")
+	@Around("com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcutConfig.bankRecordServiceConfig()")
 	public Object logBankRecordServiceException(ProceedingJoinPoint joinPoint) {		
 		try {
 			return joinPoint.proceed();
@@ -31,7 +31,7 @@ public class BankRecordJobLoggingAspect {
 		}
 	}
 	
-	@AfterReturning(pointcut="com.spring.project.app.aspect.bankRecordServiceConfig()",returning="resultValue")
+	@AfterReturning(pointcut="com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcutConfig.bankRecordServiceConfig()",returning="resultValue")
 	public void logBankRecordServiceAfterCompletion(JoinPoint joinPoint, Object resultValue) {
 		logger.info("Matched record writing process completed");
 	}
