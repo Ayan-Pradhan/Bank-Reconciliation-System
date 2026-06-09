@@ -2,6 +2,7 @@ package com.spring.projects.app.aspect;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -14,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 public class ReportJobLoggingAspect {
 	
 	private Logger logger = LoggerFactory.getLogger(ReportJobLoggingAspect.class);
+	
+	// Generation
 	
 	@Before("com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcutConfig.reportGenerationServiceConfig()")
 	public void logReportGeneration(JoinPoint joinPoint) {
@@ -31,6 +34,13 @@ public class ReportJobLoggingAspect {
 		}
 	}
 	
+	@AfterReturning(pointcut="com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcutConfig.reportGenerationServiceConfig()", returning = "resultValue")
+	public void logReportGenerationAfterCompletion(JoinPoint joinPoint, Object resultValue) {
+		logger.info("Report generation process successfully completed");
+	}
+	
+	// Modifications for batch refunds
+	
 	@Before("com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcoutConfig.reportGenerationServiceBatchConfig")
 	public void logBatchReportUpdate() {
 		logger.info("Updating report for already processed refunds");
@@ -47,6 +57,13 @@ public class ReportJobLoggingAspect {
 		}
 	}
 	
+	@AfterReturning(pointcut="com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcutConfig.reportGenerationServiceBatchConfig()", returning = "resultValue")
+	public void logBatchReportUpdateAfterCompletion(JoinPoint joinPoint, Object resultValue) {
+		logger.info("Report updated for already processed refunds");
+	}
+	
+	// Modifications for manual refunds
+	
 	@Before("com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcoutConfig.reportGenerationServiceManualConfig")
 	public void logManualReportUpdate() {
 		logger.info("Updating report for already processed refunds");
@@ -61,6 +78,11 @@ public class ReportJobLoggingAspect {
 			logger.warn("Report modification unsuccessful: {}", ex.getMessage());
 			return 0;
 		}
+	}
+	
+	@AfterReturning(pointcut="com.spring.projects.app.configuration.ReconciliationServiceGlobalPointcutConfig.reportGenerationServiceManualConfig()", returning = "resultValue")
+	public void logManualReportUpdateAfterCompletion(JoinPoint joinPoint, Object resultValue) {
+		logger.info("Report updated for already processed refunds");
 	}
 	
 	
