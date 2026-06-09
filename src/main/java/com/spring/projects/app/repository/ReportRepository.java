@@ -51,16 +51,16 @@ public class ReportRepository {
 	
 	// updates refund status from NO_ACTION to SUCCESS (manual refund process)
 	private static final String UPDATE_REPORT_NO_ACTION = """
-			UPDATE report SET refund_status = ?
-			WHERE refund_status = 'NO_ACTION' AND txn_id = ?
+			UPDATE report SET bank_amount = ?, user_amount = ?, refund_status = ?
+			WHERE txn_id = ? AND refund_status = 'NO_ACTION'
 			""";
 	
 	public long insertAmountMismatch() {
 		return jdbcTemplate.update(INSERT_INTO_REPORT_AMOUNT_MISMATCHED);
 	}
 	
-	public void updateReportForAmountMismatch(String description, DiscrepencyType type, RefundStatus status) {
-		jdbcTemplate.update(connection->{
+	public long updateReportForAmountMismatch(String description, DiscrepencyType type, RefundStatus status) {
+		return jdbcTemplate.update(connection->{
 			PreparedStatement ps = connection.prepareStatement(UPDATE_REPORT_AMOUNT_MISMATCHED);
 			ps.setString(1, description);
 			ps.setString(2, type.toString());
@@ -76,8 +76,8 @@ public class ReportRepository {
 		return jdbcTemplate.update(INSERT_INTO_REPORT_STATUS_MISMATCHED);
 	}
 	
-	public void updateReportForStatusMismatch(String description, DiscrepencyType type, RefundStatus status) {
-		jdbcTemplate.update(connection->{
+	public long updateReportForStatusMismatch(String description, DiscrepencyType type, RefundStatus status) {
+		return jdbcTemplate.update(connection->{
 			PreparedStatement ps = connection.prepareStatement(UPDATE_REPORT_STATUS_MISMATCHED);
 			ps.setString(1, description);
 			ps.setString(2, type.toString());
@@ -96,11 +96,13 @@ public class ReportRepository {
 		});
 	}
 	
-	public long updateReportForNoActionStatus(RefundDetails details) {
+	public long updateReportForNoActionStatus(RefundDetails details, RefundStatus status) {
 		return jdbcTemplate.update(connection->{
 			PreparedStatement ps = connection.prepareStatement(UPDATE_REPORT_NO_ACTION);
-			ps.setString(1, details.refundStatus());
-			ps.setString(2, details.txnId());
+			ps.setDouble(1, details.amount());
+			ps.setDouble(2, details.amount());
+			ps.setString(3, status.toString());
+			ps.setString(4, details.txnId());
 			return ps;
 		});
 	}

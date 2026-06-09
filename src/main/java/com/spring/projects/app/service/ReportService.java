@@ -41,8 +41,8 @@ public class ReportService {
 		throw new ReportModificationFaliureException("No report available to modify refund status, may already be modified");
 	}
 	
-	public long updateReportManual(RefundDetails details) throws ReportModificationFaliureException {
-		long result = reportRepo.updateReportForNoActionStatus(details);
+	public long updateReportManual(RefundDetails details, RefundStatus status) throws ReportModificationFaliureException {
+		long result = reportRepo.updateReportForNoActionStatus(details, status);
 		if(result > 0)
 			return result;
 		

@@ -27,7 +27,7 @@ public class RefundRepository {
 			""";
 	
 	private static final String UPDATE_AMOUNT_MISMATCH = """
-			UPDATE refund SET refund_status = ?, time_stamp = ?, is_processed = ?
+			UPDATE refund SET amount = ?, refund_status = ?, time_stamp = ?, is_processed = ?
 			WHERE txn_id = ? AND is_processed = 'FALSE' AND cause = 'AMOUNT_MISMATCH'
 			""";
 	
@@ -43,10 +43,11 @@ public class RefundRepository {
 	}
 	
 	
-	public long update(RefundDetails refundDetails) {
+	public long update(RefundDetails refundDetails, RefundStatus refundStatus) {
 		return jdbcTemplate.update(
 			UPDATE_AMOUNT_MISMATCH,
-			refundDetails.refundStatus(),
+			refundDetails.amount(),
+			refundStatus,
 			Timestamp.valueOf(LocalDateTime.now()),
 			"TRUE",
 			refundDetails.txnId()

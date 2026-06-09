@@ -28,8 +28,8 @@ public class RefundService {
 	}
 	
 	public Response initiateManualRefund(RefundDetails refundDetails) throws RefundUnsuccessfulException, ReportModificationFaliureException {
-		if(refundRepo.update(refundDetails) > 0) {
-			long code = reportService.updateReportManual(refundDetails);
+		if(refundRepo.update(refundDetails, RefundStatus.SUCCESS) > 0) {
+			long code = reportService.updateReportManual(refundDetails, RefundStatus.SUCCESS);
 			return new Response(ResponseStatusCode.SUCCESS,"Refund is successful with exit code  " + code);
 		}
         throw new RefundUnsuccessfulException("Refund unsucccessful for Txn Id: " + refundDetails.txnId());
