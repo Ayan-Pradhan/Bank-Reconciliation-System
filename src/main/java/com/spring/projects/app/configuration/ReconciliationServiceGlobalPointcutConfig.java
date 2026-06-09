@@ -24,6 +24,9 @@ public class ReconciliationServiceGlobalPointcutConfig {
 	@Pointcut("execution(* com.spring.projects.app.service.BankRecordService.*(..))")
 	public void bankRecordServiceConfig() {};
 	
+	@Pointcut("execution(* com.spring.projects.app.service.UserRecordService.*(..))")
+	public void userRecordServiceConfig() {};
+	
 	@Pointcut("execution(* com.spring.projects.app.service.ReconciliationBatchService.*(..))")
 	public void reconciliationBatchServiceConfig() {};
 	
