@@ -31,7 +31,7 @@ public class ReconciliationController {
 		return ResponseEntity.ok(batchService.startReconciliationService());
 	}
 	
-	@PostMapping("/upload")
+	@PostMapping("/upload-ledger")
 	public ResponseEntity<Response> uploadFile(@RequestBody File file){
 		return null;
 	}
