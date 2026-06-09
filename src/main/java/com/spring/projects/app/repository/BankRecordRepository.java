@@ -18,8 +18,8 @@ public class BankRecordRepository {
 	        WHERE a.status = b.status AND a.amount = b.amount
 			""";
 	
-	public void add() {
-		jdbcTemplate.update(INSERT_INTO_BANK_RECORD);
+	public long insert() {
+		return jdbcTemplate.update(INSERT_INTO_BANK_RECORD);
 	}
 	
 }
