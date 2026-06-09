@@ -17,7 +17,7 @@ public class UserRecordRepository {
 	        LEFT JOIN staging_user_records b ON a.txn_id = b.txn_id
 			""";
 	
-	public void add() {
-		jdbcTemplate.update(INSERT_INTO_USER_RECORD);
+	public long insert() {
+		return jdbcTemplate.update(INSERT_INTO_USER_RECORD);
 	}
 }

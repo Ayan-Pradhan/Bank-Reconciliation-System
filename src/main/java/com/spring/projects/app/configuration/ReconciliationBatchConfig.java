@@ -33,6 +33,7 @@ import com.spring.projects.app.service.FileLoaderService;
 import com.spring.projects.app.service.RefundService;
 import com.spring.projects.app.service.ReportService;
 import com.spring.projects.app.service.StagingService;
+import com.spring.projects.app.service.UserRecordService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +43,7 @@ public class ReconciliationBatchConfig {
 		
 	private final StagingService stagingService;
 	private final BankRecordService bankRecordService;
+	private final UserRecordService userRecordService;
 	private final ReportService reportService;
 	private final RefundService refundService;
 	private final FileLoaderService fileService;
@@ -168,6 +170,14 @@ public class ReconciliationBatchConfig {
 	}
 	
 	@Bean
+	Tasklet archiveTasklet() {
+	    return (contribution, chunkContext) -> {
+            userRecordService.insertAll();     
+	        return RepeatStatus.FINISHED;
+	    };
+	}
+	
+	@Bean
 	Tasklet generateReportTasklet() {
 		return (contribution, chunkContext) -> {
 			reportService.generateReport();
@@ -199,6 +209,13 @@ public class ReconciliationBatchConfig {
 	}
 	
 	@Bean
+	Step archieve(JobRepository repository, PlatformTransactionManager transactionManager) {
+		return new StepBuilder("archieve-step", repository)
+				.tasklet(archiveTasklet(), transactionManager)
+				.build();
+	}
+	
+	@Bean
 	Step generateReport(JobRepository repository, PlatformTransactionManager transactionManager) {
 		return new StepBuilder("report-generation-step", repository)
 				.tasklet(generateReportTasklet(), transactionManager)
@@ -220,11 +237,12 @@ public class ReconciliationBatchConfig {
 	}
 
 	@Bean
-	Job bankJob(JobRepository repository, Step loadBankFileIntoStaging, Step loadUserFileIntoStaging, Step compare, Step generateReport, Step initiateRefund, Step cleanUp) {
+	Job bankJob(JobRepository repository, Step loadBankFileIntoStaging, Step loadUserFileIntoStaging, Step compare, Step archieve, Step generateReport, Step initiateRefund, Step cleanUp) {
 		return new JobBuilder("bankRecord-import-job", repository)
 				.start(loadBankFileIntoStaging)
 				.next(loadUserFileIntoStaging)
 				.next(compare)
+				.next(archieve)
 				.next(generateReport)
 				.next(initiateRefund)
 				.next(cleanUp)
