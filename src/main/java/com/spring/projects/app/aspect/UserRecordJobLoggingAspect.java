@@ -16,12 +16,12 @@ public class UserRecordJobLoggingAspect {
 	
 	private Logger logger = LoggerFactory.getLogger(UserRecordJobLoggingAspect.class);
 	
-	@Before("com.spring.project.app.aspect.userRecordServiceConfig")
+	@Before("com.spring.project.app.aspect.userRecordServiceConfig()")
 	public void logUserRecordService(JoinPoint joinPoint) {
 		logger.info("Record writing process started");
 	}
 	
-	@Around("com.spring.project.app.aspect.userRecordServiceConfig")
+	@Around("com.spring.project.app.aspect.userRecordServiceConfig()")
 	public Object logUserRecordServiceException(ProceedingJoinPoint joinPoint) {		
 		try {
 			return joinPoint.proceed();
@@ -31,7 +31,7 @@ public class UserRecordJobLoggingAspect {
 		}
 	}
 	
-	@AfterReturning(pointcut="com.spring.project.app.aspect.userRecordServiceConfig",returning="resultValue")
+	@AfterReturning(pointcut="com.spring.project.app.aspect.userRecordServiceConfig()",returning="resultValue")
 	public void logUserRecordServiceAfterCompletion(JoinPoint joinPoint, Object resultValue) {
 		logger.info("Record writing process completed");
 	}
