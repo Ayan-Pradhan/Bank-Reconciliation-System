@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.spring.projects.app.entity.BankRecord;
-import com.spring.projects.app.entity.UserRecord;
+import com.spring.projects.app.entity.RecordArchive;
 import com.spring.projects.app.exception.LedgerNotFoundException;
 import com.spring.projects.app.service.BankRecordService;
 import com.spring.projects.app.service.FileLoaderService;
@@ -98,8 +98,8 @@ public class ReconciliationBatchConfig {
 	
 	
 	@Bean
-	FlatFileItemReader<UserRecord> userRecordReader() throws LedgerNotFoundException  {
-		return new FlatFileItemReaderBuilder<UserRecord>()
+	FlatFileItemReader<RecordArchive> userRecordReader() throws LedgerNotFoundException  {
+		return new FlatFileItemReaderBuilder<RecordArchive>()
 				.name("userRecordReader")
 				.resource(fileService.getUserLedger())
 				.linesToSkip(1)
@@ -108,16 +108,16 @@ public class ReconciliationBatchConfig {
 	}
 	
 	@Bean
-	LineMapper<UserRecord> userRecordLineMapper() {
-		DefaultLineMapper<UserRecord> lineMapper = new DefaultLineMapper<>();
+	LineMapper<RecordArchive> userRecordLineMapper() {
+		DefaultLineMapper<RecordArchive> lineMapper = new DefaultLineMapper<>();
 		
 		DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
 		lineTokenizer.setDelimiter(",");													
 		lineTokenizer.setStrict(false);
 		lineTokenizer.setNames("id", "txnId", "sender", "receiver", "amount", "timeStamp", "status");			
 		
-		BeanWrapperFieldSetMapper<UserRecord> fieldSetMapper = new BeanWrapperFieldSetMapper<UserRecord>();										
-		fieldSetMapper.setTargetType(UserRecord.class);
+		BeanWrapperFieldSetMapper<RecordArchive> fieldSetMapper = new BeanWrapperFieldSetMapper<RecordArchive>();										
+		fieldSetMapper.setTargetType(RecordArchive.class);
 		fieldSetMapper.setCustomEditors(Map.of(
 		        LocalDateTime.class, new PropertyEditorSupport() {
 		            @Override
@@ -135,8 +135,8 @@ public class ReconciliationBatchConfig {
 	}
 	
 	@Bean
-	JdbcBatchItemWriter<UserRecord> userRecordWriter(DataSource dataSource){
-		return new JdbcBatchItemWriterBuilder<UserRecord>()
+	JdbcBatchItemWriter<RecordArchive> userRecordWriter(DataSource dataSource){
+		return new JdbcBatchItemWriterBuilder<RecordArchive>()
 				.dataSource(dataSource)
 				.sql(stagingService.insertRawUserRecords())
 				.beanMapped()
@@ -155,7 +155,7 @@ public class ReconciliationBatchConfig {
 	@Bean
 	Step loadUserFileIntoStaging(JobRepository repository, PlatformTransactionManager transactionManager, DataSource dataSource) throws LedgerNotFoundException  {
 		return new StepBuilder("load-user-file-step",repository)
-				.<UserRecord, UserRecord>chunk(20)
+				.<RecordArchive, RecordArchive>chunk(20)
 				.reader(userRecordReader())
 				.writer(userRecordWriter(dataSource))
 				.build();

@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class UserRecord {
+public class RecordArchive {
 	
 	@Id
 	private Long id;

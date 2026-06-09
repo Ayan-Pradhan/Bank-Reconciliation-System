@@ -3,7 +3,7 @@ package com.spring.projects.app.service;
 import org.springframework.stereotype.Service;
 
 import com.spring.projects.app.exception.RecordNotFoundException;
-import com.spring.projects.app.repository.UserRecordRepository;
+import com.spring.projects.app.repository.ArchiveRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 public class ArchiveService {
 
-	private final UserRecordRepository userRepo;
+	private final ArchiveRepository userRepo;
 	
 	public long archive() throws RecordNotFoundException {
 		long result = userRepo.insert();
